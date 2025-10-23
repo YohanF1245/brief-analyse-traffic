@@ -189,3 +189,33 @@ ORDER BY total DESC;
 """
 ```
 ![image](/accidents-par-types-vehicules.png)
+4. Gravité des accidents par type de véhicules
+``` Python
+SQL = """
+SELECT
+    CASE
+        WHEN dv.catv LIKE '%VL%' THEN 'Voiture particulière'
+        WHEN dv.catv LIKE 'VU%' OR dv.catv LIKE 'PL%' OR dv.catv LIKE 'Tracteur routier%' THEN 'Utilitaire / Poids lourd'
+        WHEN dv.catv LIKE 'Motocyclette%' OR dv.catv LIKE 'Scooter >%' THEN '2-roues motorisés'
+        WHEN dv.catv LIKE 'Cyclomoteur%' OR dv.catv LIKE 'Scooter <%' OR dv.catv LIKE 'Quad%' THEN 'Cyclomoteurs et quads'
+        WHEN dv.catv LIKE 'Bicyclette%' THEN 'Vélo'
+        WHEN dv.catv LIKE 'Autocar%' OR dv.catv LIKE 'Autobus%' THEN 'Transport collectif'
+        WHEN dv.catv LIKE 'Tramway%' OR dv.catv LIKE 'Train%' THEN 'Ferroviaire'
+        WHEN dv.catv LIKE 'Tracteur agricole%' OR dv.catv LIKE 'Engin spécial%' THEN 'Engin / Agricole'
+        WHEN dv.catv LIKE 'Voiturette%' THEN 'Voiturette'
+        ELSE 'Autre'
+    END AS type_vehicule,
+    COALESCE(du.gravite_accident, 'Non renseigné') AS gravite_accident,
+    COUNT(*) AS total
+FROM fact_accidents AS fa
+JOIN dim_usager AS du
+    ON fa.id_accident = du.id_accident
+JOIN dim_vehicule AS dv
+    ON fa.id_accident = dv.id_accident
+WHERE du.categorie_usager = 'Conducteur'
+GROUP BY type_vehicule, du.gravite_accident
+ORDER BY type_vehicule, du.gravite_accident;
+"""
+```
+![image](/gravite-accidents-voitures-particulieres.png)
+![image](/gravite-accident-type-vehicule.png)
