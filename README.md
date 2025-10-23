@@ -26,3 +26,103 @@ https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/accidents-corp
 ```
 À noter que dans une optique d'automatisation d'etl, on peut imaginer que le job va tourner tout les mois, et recuperer les données du mois precedant (via les parametres année / mois qui permettent de cibles quelle plage de donées récuperer).
 
+## Création de la base de données : 
+
+``` Python
+import sqlite3
+
+conn = sqlite3.connect('accidents.db')
+cursor = conn.cursor()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS dim_localisation (
+  id_localisation TEXT PRIMARY KEY,
+  nom_commune TEXT,
+  agglomeration TEXT,
+  departement_code TEXT,
+  nom_departement TEXT,
+  commune_code TEXT,
+  adresse_postale TEXT,
+  code_postal TEXT
+);
+''')
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS dim_contexte (
+  id_contexte TEXT PRIMARY KEY,
+  lumiere TEXT,
+  intersection TEXT,
+  condition_atmos TEXT,
+  collision TEXT,
+  type_surface TEXT,
+  regime_circulation TEXT,
+  voie_reservee TEXT,
+  proximite_ecole TEXT,
+  nombre_voie_circulation INTEGER,
+  categorie_route TEXT,
+  pente TEXT,
+  infrastructure TEXT,
+  situation_accident TEXT
+);
+''')
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS dim_temps (
+  id_date TEXT PRIMARY KEY,
+  annee INTEGER,
+  mois INTEGER,
+  jour INTEGER,
+  hrmn TEXT,
+  date TEXT
+);
+''')
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS fact_accidents (
+  id_accident TEXT PRIMARY KEY,
+  num_acc INTEGER,
+  obstacle_mobile_heurte TEXT,
+  obstacle_fixe_heurte TEXT,
+  id_localisation TEXT,
+  id_contexte TEXT,
+  id_date TEXT,
+  FOREIGN KEY (id_localisation) REFERENCES dim_localisation(id_localisation),
+  FOREIGN KEY (id_contexte) REFERENCES dim_contexte(id_contexte),
+  FOREIGN KEY (id_date) REFERENCES dim_temps(id_date)
+);
+''')
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS dim_usager (
+  id_usager TEXT PRIMARY KEY,
+  annee_naissance INTEGER,
+  sexe TEXT,
+  gravite_accident TEXT,
+  securite TEXT,
+  locp TEXT,
+  place TEXT,
+  categorie_usager TEXT,
+  booster TEXT,
+  trajet TEXT,
+  action_pieton TEXT,
+  id_accident TEXT,
+  FOREIGN KEY(id_accident) REFERENCES fact_accidents(id_accident)
+);
+''')
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS dim_vehicule (
+  id_vehicule TEXT PRIMARY KEY,
+  catv TEXT,
+  num_veh TEXT,
+  choc TEXT,
+  manoeuvre_av_accident TEXT,
+  id_accident TEXT,
+  FOREIGN KEY(id_accident) REFERENCES fact_accidents(id_accident)
+);
+''')
+
+conn.commit()
+conn.close()
+```
+
