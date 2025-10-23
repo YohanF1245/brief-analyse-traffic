@@ -166,3 +166,26 @@ ORDER BY decennie;
 ```
 ![image](/accidents-par-tranche-age.png)
 ![image](/evolution-accidents-par-tranche-age.png)
+3. Accidents par type de véhicules
+``` python
+query = """
+SELECT
+    CASE
+        WHEN catv LIKE '%VL%' THEN 'Voiture particulière'
+        WHEN catv LIKE 'VU%' OR catv LIKE 'PL%' OR catv LIKE 'Tracteur routier%' THEN 'Utilitaire / Poids lourd'
+        WHEN catv LIKE 'Motocyclette%' OR catv LIKE 'Scooter >%' THEN '2-roues motorisés'
+        WHEN catv LIKE 'Cyclomoteur%' OR catv LIKE 'Scooter <%' OR catv LIKE 'Quad%' THEN 'Cyclomoteurs et quads'
+        WHEN catv LIKE 'Bicyclette%' THEN 'Vélo'
+        WHEN catv LIKE 'Autocar%' OR catv LIKE 'Autobus%' THEN 'Transport collectif'
+        WHEN catv LIKE 'Tramway%' OR catv LIKE 'Train%' THEN 'Ferroviaire'
+        WHEN catv LIKE 'Tracteur agricole%' OR catv LIKE 'Engin spécial%' THEN 'Engin / Agricole'
+        WHEN catv LIKE 'Voiturette%' THEN 'Voiturette'
+        ELSE 'Autre'
+    END AS type_vehicule,
+    COUNT(*) AS total
+FROM dim_vehicule
+GROUP BY type_vehicule
+ORDER BY total DESC;
+"""
+```
+![image](/accidents-par-types-vehicules.png)
