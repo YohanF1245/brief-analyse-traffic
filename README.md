@@ -126,3 +126,26 @@ conn.commit()
 conn.close()
 ```
 
+## Requêtes analytiques
+1. Accidents par année et par gravité
+```python
+accidents_par_annee = pd.read_sql_query('''
+    SELECT count(*) AS nombre_accidents, dt.annee
+    FROM dim_temps dt
+    GROUP BY dt.annee
+    ''',conn)
+gravite_par_annee = pd.read_sql_query('''
+     SELECT 
+        dt.annee,
+        du.gravite_accident,
+    COUNT(*) AS nombre_accidents
+    FROM dim_usager AS du
+    INNER JOIN fact_accidents AS fa
+    ON fa.id_accident = du.id_accident
+    INNER JOIN dim_temps AS dt
+    ON dt.id_date = fa.id_date
+    GROUP BY dt.annee, du.gravite_accident  ''',
+    conn) 
+
+```
+![image](/accidents-par-annees.png)
