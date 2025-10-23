@@ -8,3 +8,12 @@ Travail collaboratif en pull requests avec deux reviewers avant merge.
 - Pandas
 - Numpy
 - Matplotlib
+## Conception mcd
+Nous avons opté pour un schéma en étoile centré sur le fait "accident" avec les dimensions :
+- usager
+- temps 
+- vehicule
+- contexte
+- contexte
+![image](/mld/diagram211025.png)
+
