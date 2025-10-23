@@ -149,3 +149,20 @@ gravite_par_annee = pd.read_sql_query('''
 
 ```
 ![image](/accidents-par-annees.png)
+2. Accidents par tranche d'âge
+``` python
+query = """
+SELECT
+    COUNT(*) AS total,
+    (annee_naissance / 10) * 10 AS decennie,
+    gravite_accident
+FROM dim_usager
+LEFT JOIN fact_accidents
+    ON fact_accidents.id_accident = dim_usager.id_accident
+WHERE categorie_usager = 'Conducteur'
+GROUP BY decennie, gravite_accident
+ORDER BY decennie;
+"""
+```
+![image](/accidents-par-tranche-age.png)
+![image](/evolution-accidents-par-tranche-age.png)
