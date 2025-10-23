@@ -1,4 +1,19 @@
 # BRIEF ANALYSE TRAFFIC
+## Sommaire
+- [BRIEF ANALYSE TRAFFIC](#brief-analyse-traffic)
+  - [Sommaire](#sommaire)
+  - [Gestion de projet](#gestion-de-projet)
+  - [Technos utilisées :](#technos-utilisées-)
+  - [Conception mcd](#conception-mcd)
+  - [Récuperation des données de l'api](#récuperation-des-données-de-lapi)
+  - [Création de la base de données :](#création-de-la-base-de-données-)
+  - [Requêtes analytiques](#requêtes-analytiques)
+    - [1. Accidents par année et par gravité](#1-accidents-par-année-et-par-gravité)
+    - [2. Accidents par tranche d'âge](#2-accidents-par-tranche-dâge)
+    - [3. Accidents par type de véhicules](#3-accidents-par-type-de-véhicules)
+    - [4. Gravité des accidents par type de véhicules](#4-gravité-des-accidents-par-type-de-véhicules)
+
+
 ## Gestion de projet
 Travail collaboratif en pull requests avec deux reviewers avant merge.
 ## Technos utilisées : 
@@ -127,7 +142,7 @@ conn.close()
 ```
 
 ## Requêtes analytiques
-1. Accidents par année et par gravité
+### 1. Accidents par année et par gravité
 ```python
 accidents_par_annee = pd.read_sql_query('''
     SELECT count(*) AS nombre_accidents, dt.annee
@@ -149,7 +164,7 @@ gravite_par_annee = pd.read_sql_query('''
 
 ```
 ![image](/accidents-par-annees.png)
-2. Accidents par tranche d'âge
+### 2. Accidents par tranche d'âge
 ``` python
 query = """
 SELECT
@@ -166,7 +181,7 @@ ORDER BY decennie;
 ```
 ![image](/accidents-par-tranche-age.png)
 ![image](/evolution-accidents-par-tranche-age.png)
-3. Accidents par type de véhicules
+### 3. Accidents par type de véhicules
 ``` python
 query = """
 SELECT
@@ -189,7 +204,7 @@ ORDER BY total DESC;
 """
 ```
 ![image](/accidents-par-types-vehicules.png)
-4. Gravité des accidents par type de véhicules
+### 4. Gravité des accidents par type de véhicules
 ``` Python
 SQL = """
 SELECT
