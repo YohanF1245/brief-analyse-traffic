@@ -32,7 +32,7 @@ Nous avons opté pour un schéma en étoile centré sur le fait "accident" avec 
 - temps 
 - vehicule
 - contexte
-- contexte
+- localisation
 ![image](/mld/diagram.png)
 
 ## Récuperation des données de l'api
@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS dim_vehicule (
 conn.commit()
 conn.close()
 ```
-
+La base de données est disponible [ici](https://drive.google.com/file/d/1d5HSlj1n1WVdpX0EZuBtZk94uvLS_1bq/view?usp=drive_link)
 ## Requêtes analytiques
 ### 1. Accidents par année et par gravité
 ```python
