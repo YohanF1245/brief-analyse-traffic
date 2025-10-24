@@ -12,6 +12,9 @@
     - [2. Accidents par tranche d'âge](#2-accidents-par-tranche-dâge)
     - [3. Accidents par type de véhicules](#3-accidents-par-type-de-véhicules)
     - [4. Gravité des accidents par type de véhicules](#4-gravité-des-accidents-par-type-de-véhicules)
+    - [5. Accidents par heure de la journée](#5-accidents-par-heure-de-la-journée)
+    - [6. Place du mort](#6-place-du-mort)
+    - [7. Port de la ceinture](#7-port-de-la-ceinture)
 
 
 ## Gestion de projet
@@ -30,7 +33,7 @@ Nous avons opté pour un schéma en étoile centré sur le fait "accident" avec 
 - vehicule
 - contexte
 - contexte
-![image](/mld/diagram211025.png)
+![image](/mld/diagram.png)
 
 ## Récuperation des données de l'api
 L'api à une limitation sur le volume de données récupérable, il fallait diviser la rêquete et fetch les données mois par mois, pour rester sous le seuil de 10000 entrées récupérable.
@@ -234,3 +237,156 @@ ORDER BY type_vehicule, du.gravite_accident;
 ```
 ![image](/gravite-accidents-voitures-particulieres.png)
 ![image](/gravite-accident-type-vehicule.png)
+
+### 5. Accidents par heure de la journée
+
+``` Python
+SQL = """
+SELECT
+    -- Extraction de l'heure en nombre entier
+    CAST(
+        CASE
+            WHEN hrmn ~ '^[0-9]{4}$' THEN SUBSTRING(hrmn FROM 1 FOR 2)
+            WHEN hrmn ~ '^[0-9]{1,2}:[0-9]{2}$' THEN SPLIT_PART(hrmn, ':', 1)
+            WHEN hrmn ~ '^[0-9]{1,2}h[0-9]{0,2}$' THEN SPLIT_PART(hrmn, 'h', 1)
+            ELSE hrmn
+        END AS INTEGER
+    ) AS heure,
+
+    COUNT(*) AS nb_accidents
+FROM dim_temps
+GROUP BY heure
+ORDER BY heure;
+
+"""
+```
+![image](/accidentsheure.png)
+
+### 6. Place du mort
+
+``` Python
+SQL = """
+-- Taux de mortalité par place dans le véhicule
+WITH
+-- Comptage total des usagers par place
+total_usagers AS (
+    SELECT
+        place,
+        COUNT(*) AS total
+    FROM dim_usager
+    GROUP BY place
+),
+
+-- Comptage des usagers tués par place
+usagers_tues AS (
+    SELECT
+        place,
+        COUNT(*) AS nb_tues
+    FROM dim_usager
+    WHERE LOWER(gravite_accident) LIKE '%tué%'
+    GROUP BY place
+),
+
+-- Fusion + calcul du taux de mortalité
+taux_mortalite AS (
+    SELECT
+        t.place,
+        COALESCE(t.total, 0) AS total,
+        COALESCE(u.nb_tues, 0) AS nb_tues,
+        ROUND(100.0 * COALESCE(u.nb_tues, 0) / COALESCE(t.total, 1), 2) AS taux_mortalite
+    FROM total_usagers t
+    LEFT JOIN usagers_tues u ON t.place = u.place
+)
+
+-- Sélection finale avec correspondance des libellés
+SELECT
+    CASE CAST(place AS INTEGER)
+        WHEN 1 THEN 'Conducteur'
+        WHEN 2 THEN 'Passager avant'
+        WHEN 3 THEN 'Arrière gauche'
+        WHEN 4 THEN 'Arrière milieu'
+        WHEN 5 THEN 'Arrière droit'
+        WHEN 6 THEN 'Autre rang'
+        WHEN 7 THEN 'Extérieur'
+        WHEN 8 THEN 'Inconnu'
+        WHEN 9 THEN 'Autre'
+        ELSE 'Non défini'
+    END AS place_label,
+    total,
+    nb_tues,
+    taux_mortalite
+FROM taux_mortalite
+ORDER BY taux_mortalite DESC;
+
+
+"""
+```
+![image](/mortaliteplace.png)
+
+### 7. Port de la ceinture
+
+``` Python
+SQL = """
+WITH securite_simplifiee AS (
+    SELECT
+        id_usager,
+        id_accident,
+        -- Simplification de la colonne "securite"
+        CASE
+            WHEN securite IS NULL THEN 'Inconnu'
+            WHEN LOWER(securite) LIKE '%ceinture%' 
+              OR LOWER(securite) LIKE '%casque%' 
+              OR LOWER(securite) LIKE '%retenue%' 
+              OR LOWER(securite) LIKE '%airbag%' 
+            THEN 'Porté'
+            WHEN LOWER(securite) LIKE '%non%' 
+              OR LOWER(securite) LIKE '%aucun%' 
+              OR LOWER(securite) LIKE '%abs%' 
+              OR LOWER(securite) LIKE '%sans%' 
+            THEN 'Non porté'
+            ELSE 'Inconnu'
+        END AS securite_simple,
+
+        -- Simplification de la gravité
+        CASE
+            WHEN gravite_accident IS NULL THEN 'Inconnu'
+            WHEN LOWER(gravite_accident) LIKE '%tué%' THEN 'Tué'
+            WHEN LOWER(gravite_accident) LIKE '%bless%' THEN 'Blessé'
+            WHEN LOWER(gravite_accident) LIKE '%indemne%' THEN 'Indemne'
+            ELSE 'Autre'
+        END AS gravite_simple
+    FROM dim_usager
+),
+
+-- Comptage du nombre d’usagers par sécurité et gravité
+compte AS (
+    SELECT
+        securite_simple,
+        gravite_simple,
+        COUNT(*) AS nb_usagers
+    FROM securite_simplifiee
+    GROUP BY securite_simple, gravite_simple
+),
+
+-- Calcul du pourcentage dans chaque catégorie de sécurité
+totaux AS (
+    SELECT
+        securite_simple,
+        SUM(nb_usagers) AS total_usagers
+    FROM compte
+    GROUP BY securite_simple
+)
+
+SELECT
+    c.securite_simple,
+    c.gravite_simple,
+    c.nb_usagers,
+    ROUND((c.nb_usagers * 100.0 / t.total_usagers), 2) AS pct
+FROM compte c
+JOIN totaux t
+  ON c.securite_simple = t.securite_simple
+ORDER BY c.securite_simple, c.gravite_simple;
+
+"""
+```
+![image](/portceinture.png)
