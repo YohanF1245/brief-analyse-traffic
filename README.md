@@ -12,6 +12,9 @@
     - [2. Accidents par tranche d'âge](#2-accidents-par-tranche-dâge)
     - [3. Accidents par type de véhicules](#3-accidents-par-type-de-véhicules)
     - [4. Gravité des accidents par type de véhicules](#4-gravité-des-accidents-par-type-de-véhicules)
+    - [5. Accidents par heure de la journée](#5-accidents-par-heure-de-la-journée)
+    - [6. Place du mort](#6-place-du-mort)
+    - [7. Port de la ceinture](#7-port-de-la-ceinture)
 
 
 ## Gestion de projet
