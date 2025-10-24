@@ -17,7 +17,7 @@
     - [7. Port de la ceinture](#7-port-de-la-ceinture)
     - [8. Accidents selon la manoeuvre](#8-Accidents-selon-la-manoeuvre)
     - [9. Accidents selon le genre](#9-Accidents-selon-le-genre)
-    - [10. Heatmap meteo lumiere](#7-Heatmap-meteo-lumiere)
+    - [10. Heatmap meteo lumiere](#10-Heatmap-meteo-lumiere)
 ## Gestion de projet
 Travail collaboratif en pull requests avec deux reviewers avant merge.
 ## Technos utilisées : 
