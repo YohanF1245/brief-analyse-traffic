@@ -390,3 +390,58 @@ ORDER BY c.securite_simple, c.gravite_simple;
 """
 ```
 ![image](/portceinture.png)
+
+### 7. Accidents selon la manoeuvre
+
+``` Python
+SQL = """
+SELECT 
+    v.manoeuvre_av_accident AS manoeuvre,
+    COUNT(DISTINCT v.id_accident) AS nb_accidents
+FROM dim_vehicule v
+WHERE v.manoeuvre_av_accident IS NOT NULL
+  AND v.manoeuvre_av_accident NOT IN ('Sans changement de direction', '26','25','-1')
+GROUP BY v.manoeuvre_av_accident
+ORDER BY nb_accidents DESC;
+
+"""
+```
+![image](/accident_selon_la_manoeuvre.png)
+
+### 7. Accidents selon le genre
+
+``` Python
+SQL = """
+SELECT 
+    u.sexe,
+    COUNT(DISTINCT u.id_accident) AS nb_accidents
+FROM dim_usager u
+WHERE u.sexe IS NOT NULL
+GROUP BY u.sexe
+ORDER BY nb_accidents DESC;
+
+"""
+```
+![image](/accident_femme_homme.png)
+
+### 7. Heatmap meteo lumiere
+
+``` Python
+SQL = """
+SELECT 
+    c.lumiere AS condition_lumiere,
+    c.condition_atmos AS condition_meteo,
+    COUNT(*) AS nb_accidents
+FROM fact_accidents f
+LEFT JOIN dim_contexte c ON c.id_contexte = f.id_contexte
+WHERE c.lumiere IS NOT NULL
+  AND c.condition_atmos IS NOT NULL
+  AND c.lumiere <> 'Plein jour'
+  AND c.condition_atmos <> 'Normal'
+GROUP BY c.lumiere, c.condition_atmos;
+
+"""
+```
+![image](/heatmap_lumiere_et_meteo.png)
+
+
