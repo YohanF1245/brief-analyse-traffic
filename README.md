@@ -32,7 +32,7 @@ Nous avons opté pour un schéma en étoile centré sur le fait "accident" avec 
 - temps 
 - vehicule
 - contexte
-- contexte
+- localisation
 ![image](/mld/diagram.png)
 
 ## Récuperation des données de l'api
