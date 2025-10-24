@@ -15,8 +15,9 @@
     - [5. Accidents par heure de la journée](#5-accidents-par-heure-de-la-journée)
     - [6. Place du mort](#6-place-du-mort)
     - [7. Port de la ceinture](#7-port-de-la-ceinture)
-
-
+    - [8. Accidents selon la manoeuvre](#8-Accidents-selon-la-manoeuvre)
+    - [9. Accidents selon le genre](#9-Accidents-selon-le-genre)
+    - [10. Heatmap meteo lumiere](#7-Heatmap-meteo-lumiere)
 ## Gestion de projet
 Travail collaboratif en pull requests avec deux reviewers avant merge.
 ## Technos utilisées : 
@@ -391,7 +392,7 @@ ORDER BY c.securite_simple, c.gravite_simple;
 ```
 ![image](/portceinture.png)
 
-### 7. Accidents selon la manoeuvre
+### 8. Accidents selon la manoeuvre
 
 ``` Python
 SQL = """
@@ -408,7 +409,7 @@ ORDER BY nb_accidents DESC;
 ```
 ![image](/accident_selon_la_manoeuvre.png)
 
-### 7. Accidents selon le genre
+### 9. Accidents selon le genre
 
 ``` Python
 SQL = """
@@ -424,7 +425,7 @@ ORDER BY nb_accidents DESC;
 ```
 ![image](/accident_femme_homme.png)
 
-### 7. Heatmap meteo lumiere
+### 10. Heatmap meteo lumiere
 
 ``` Python
 SQL = """
